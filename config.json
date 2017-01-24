@@ -1,0 +1,20 @@
+{
+    "language"        : "PYTHON",
+    "main-file"       : "obj.py",
+    "experiment-name" : "course-project-1",
+    "variables" : {
+        "c" : {
+            "type" : "FLOAT",
+            "size" : 1,
+            "min"  : 0.0001,
+            "max"  : 10000
+        },
+        "g" : {
+            "type" : "FLOAT",
+            "size" : 1,
+            "min"  : 0.0001,
+            "max"  : 10000
+        }
+    }
+}
+

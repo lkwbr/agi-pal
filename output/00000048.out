@@ -1,0 +1,13 @@
+Job launching after 0.24 seconds in submission.
+Running python job.
+Changed into dir /home/luke/Documents/Classes/CptS 570/HW6
+Importing obj.py
+Running obj.main()
+Got result 83.3155080214
+Completed successfully in 12.95 seconds. [{u'main': 83.31550802139037}]
+Done parsing train and validation data!
+<type 'numpy.float64'>
+<type 'numpy.float64'>
+[JOB48] Training with c = 86.342, g = 0.744...
+Accuracy = 16.6845% (156/935) (classification)
+[LUKE_TOKEN] Accuracy = 16.6844919786

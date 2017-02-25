@@ -17,12 +17,26 @@ Proof of Concept design:
     4. Print results
 """
 
-from sklearn.linear_model import PassiveAggressiveClassifier
-import numpy as np
-import fetch # personal code from fetch.py
+import extract  # Local git repo data extracter
+import fetch    # Web-based git repo extracter
+import model    # Recommender model
 
 def main():
-    
+
+    repo_name = "bitcoin"
+
+    # Extract data from local repo
+    print("Extracting data from", repo_name)
+    X, Y = extract(repo_name)
+    print("Data extracted!")
+
+    # Train model on that parsed data!
+    m = RecommenderModel(X, Y)
+
+    return
+    # NOTE: Old news below this point
+
+
     # Model and params
     pac = PassiveAggressiveClassifier()
     n_samples = 1 # at a time
@@ -39,6 +53,7 @@ def main():
     # Train
     n_runs = 0
     while True:
+
         # Header
         print("-" * 50)
 
@@ -67,7 +82,6 @@ def main():
 
         # Update model with our 1 sample
         pac.partial_fit(X, y, range(len(people_labels)))
-
 
         n_runs += 1
         print

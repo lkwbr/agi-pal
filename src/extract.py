@@ -1,6 +1,7 @@
 # extract.py
 
 import os
+import queue
 import subprocess
 
 def extract(repo_name):
@@ -14,10 +15,9 @@ def extract(repo_name):
 	#os.chdir(repo_dir)
 
 	# Walk through whole directory structure
-	file_names = []
-	walk_dir(repo_dir, file_names)
+	file_names = walk_dir(repo_dir)
 	
-	print(file_names)
+	print(len(file_names))
 
 	output = subprocess.getoutput(cmd)
 
@@ -29,21 +29,29 @@ def extract(repo_name):
 	#os.chdir("C:\Users\DhruvOhri\Documents\COMP 6411\pygithub3-0.3")
 	#os.system("git clone https://github.com/poise/python.git")
 
-def walk_dir(dir_name, file_bag = []):
+def walk_dir(dir_name):
 	"""
-	Recursively explore and extract data w/in directory structure. 
-	NOTE: We'll have problems if directory contents are of a length
-	      such that we run out of our allocated space on stack.
+	Iteratively explore and extract data w/in directory structure. 
+	NOTE: Pervious recursive approach killed stack. 
 	"""
 
 	#cmd_two = "git log --format=format:%an " + data_dir + " ver1..ver2 | sort | uniq"
 
+	dir_queue = queue.Queue() 
+	file_bag = []
+
 	# Walk over current directory
-	for (dir_path, sub_dir_names, file_names) in os.walk(dir_name):
-	
-		# Recurse on each subdirectory	
-		for sub_dir_name in sub_dir_names: walk_dir(sub_dir_name, file_bag)	
+	dir_queue.put(dir_name)
+	while not dir_queue.empty():
 
-		# Put those filenames in the bag!
-		file_bag.extend(file_names)
+		curr_dir = dir_queue.get()
 
+		for (dir_path, sub_dir_names, file_names) in os.walk(curr_dir):
+		
+			# Add each subdirectory	to queue to visit later
+			for sub_dir_name in sub_dir_names: dir_queue.put(sub_dir_name)	
+
+			# Put those filenames in the bag!
+			file_bag.extend(file_names)
+
+		break

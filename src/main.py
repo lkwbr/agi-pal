@@ -17,9 +17,9 @@ Proof of Concept design:
     4. Print results
 """
 
-import extract  # Local git repo data extracter
-import fetch    # Web-based git repo extracter
-import model    # Recommender model
+import extract as ex  	# Local git repo data extracter
+import fetch as fc    	# Web-based git repo extracter
+import model as mod    	# Recommender model
 
 def main():
 
@@ -27,11 +27,11 @@ def main():
 
     # Extract data from local repo
     print("Extracting data from", repo_name)
-    X, Y = extract(repo_name)
+    X, Y = ex.extract(repo_name)
     print("Data extracted!")
 
     # Train model on that parsed data!
-    m = RecommenderModel(X, Y)
+    m = mod.RecommenderModel(X, Y)
 
     return
     # NOTE: Old news below this point

@@ -9,12 +9,14 @@ def extract(repo_name):
    
     # TODO: Remove the hard-coding
     data_dir = "../../Repos"
-    os.chdir(data_dir) 
-    repo_dir = repo_name 
+    repo_dir = data_dir + "/" + repo_name
+    os.chdir(repo_dir) 
 
     # Gather all directory (and subdirectory) files,
     # and then parse them for features 
-    file_names = walk_dir(repo_dir)
+    file_names = walk_dir(".")
+    print("Donesldfkjsdlkfjsdklfj")
+    for f in file_names: print(f)
     X, Y = parse_features(file_names)
 
     return X, Y 
@@ -25,15 +27,23 @@ def parse_features(file_names):
     X = []
     Y = []
 
+    # For each file (key), store the list of its contributors (value)
+    file_contributor_dict = {}
+
     for file_name in file_names:
 
-        print(file_name)
-
         git_cmd = "git log --format=format:%an " + file_name + " | sort | uniq"
-
         output = subprocess.getoutput(git_cmd)
-        print(output)
 
+        # NOTE: This is not the information we want to extract; we want
+        # to intelligently gather Experience Atoms from deltas, not just
+        # a list of contributors!
+        contributors = output.split("\n")
+        file_contributor_dict[file_name] = contributors
+
+        print(".", end = "", flush = True)
+
+    print(file_contributor_dict)
     return X, Y
 
 def walk_dir(dir_name):

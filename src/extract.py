@@ -6,20 +6,24 @@ import subprocess
 
 def extract(repo_name):
     """ Extract sets X and Y from git repository under the folder '/data' """
-   
+
+    # NOTE: For each source file delta, all relevant developers and
+    # organizations gain an EA for a particular file, technology, module,
+    # subcomponent, etc.
+
     # TODO: Remove the hard-coding
     data_dir = "../../Repos"
     repo_dir = data_dir + "/" + repo_name
-    os.chdir(repo_dir) 
+    os.chdir(repo_dir)
 
     # Gather all directory (and subdirectory) files,
-    # and then parse them for features 
+    # and then parse them for features
     file_names = walk_dir(".")
     print("Donesldfkjsdlkfjsdklfj")
     for f in file_names: print(f)
     X, Y = parse_features(file_names)
 
-    return X, Y 
+    return X, Y
 
 def parse_features(file_names):
     """ """
@@ -66,7 +70,7 @@ def walk_dir(dir_name):
         for (dir_path, sub_dir_names, file_names) in os.walk(curr_dir):
 
             # Add each subdirectory to queue to visit later
-            for sub_dir_name in sub_dir_names:  
+            for sub_dir_name in sub_dir_names:
                 dir_queue.put(dir_concat(dir_path, sub_dir_name))
 
             # Put those filenames in the bag! Adding directory structure
@@ -79,4 +83,3 @@ def walk_dir(dir_name):
 
 def dir_concat(dir_pre, dir_post):
     return dir_pre + "/" + dir_post
-

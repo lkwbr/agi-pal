@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-# Luke Weber, 11398889
-# Created 12/19/16
+# Author: Luke Weber
+# Creation date: 12/19/2016
+# Last modification date: 03/29/2017
 
 """
 Prior design
@@ -34,8 +35,7 @@ def main():
     m = mod.RecommenderModel(X, Y)
 
     return
-    # NOTE: Old news below this point
-
+    # -------------------------------------------------------------------------
 
     # Model and params
     pac = PassiveAggressiveClassifier()

@@ -10,9 +10,11 @@ class Delta:
     many entities
     """
 
-    def __init__(self, file_len, delta_len, date, time):
+    def __init__(self, file_name, num_inserts, num_deletes, date, time):
         self.file_name = file_name
-        self.delta_len = data_len
+        self.num_inserts = num_inserts
+        self.num_deletes = num_deletes
+        self.delta_len = num_inserts + num_deletes
         self.date = date
         self.time = time
 

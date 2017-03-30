@@ -1,5 +1,6 @@
 # extract.py
 
+import re
 import os
 import queue
 import subprocess
@@ -35,18 +36,8 @@ def parse_features(file_names):
     file_contributor_dict = {}
 
     for file_name in file_names:
-
-        git_cmd = "git log --format=format:%an " + file_name + " | sort | uniq"
-        output = subprocess.getoutput(git_cmd)
-
-        # NOTE: This is not the information we want to extract; we want
-        # to intelligently gather Experience Atoms from deltas, not just
-        # a list of contributors!
-        contributors = output.split("\n")
-        file_contributor_dict[file_name] = contributors
-
-        print(".", end = "", flush = True)
-
+        parse_git_commit_log(file_name)
+        
     print(file_contributor_dict)
     return X, Y
 
@@ -83,3 +74,30 @@ def walk_dir(dir_name):
 
 def dir_concat(dir_pre, dir_post):
     return dir_pre + "/" + dir_post
+
+def parse_git_commit_log(f):
+    """ Parse given file's git commit log """
+
+
+    # Get developer name, email, datetime, number of inserted lines, 
+    # and the number of deleted lines
+    commit_format = "%an'\t'%ae'\t'%ad'\t'"
+    git_commits = ("git log --format={} --numstat {} | sed '/^$/d'") \
+            .format(commit_format, f)
+    output = subprocess.getoutput(git_commits)
+    lines = output.split('\n')
+
+    # Partition commits
+    pattern = re.compile("^[0-9]\t[0-9]\t[A-Z]+.[A-Z]+$", re.IGNORECASE)
+    for l in lines:
+        if pattern.match(l): 
+            print(">\t", l, "matches!")
+
+    exit(0)
+
+    #delta = Delta(f, )
+
+    #contributors = output.split("\n")
+    file_contributor_dict[f] = contributors
+
+    print(".", end = "", flush = True)

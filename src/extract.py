@@ -75,23 +75,51 @@ def walk_dir(dir_name):
 def dir_concat(dir_pre, dir_post):
     return dir_pre + "/" + dir_post
 
+def parse_git_user_line(l):
+    """ 
+    Parse given git commit line by single user. e.g., a line could be 
+    "Wladimir J. van der Laan    laanwj@gmail.com    Mon Nov 2 04:15:58 2015 +0100",
+    which is of the form [name]\t[email]\t[commit datetime]
+    """
+    
+    fields = l.split("\t")
+    name = fields[0] 
+    email = fields[1] 
+    datetime = fields[2] 
+
+    #entity = Entity
+    entity
+
+    # TODO: Convert datetime into Pythonic form
+
+def parse_git_numstat_line(l):
+    """ 
+    Parse given git numstat line, of following form:
+    [num inserted lines]\t[num deleted lines]\t[relative filename] 
+    """
+
+    fields = l.split("\t")
+
 def parse_git_commit_log(f):
     """ Parse given file's git commit log """
 
-
     # Get developer name, email, datetime, number of inserted lines, 
     # and the number of deleted lines
+    # NOTE: Potential loss of information by ignoring merges! Only taking not
+    # of changes to master branch
     commit_format = "%an'\t'%ae'\t'%ad'\t'"
-    git_commits = ("git log --format={} --numstat {} | sed '/^$/d'") \
+    git_commits = ("git log --format={} --no-merges --numstat {} | sed '/^$/d'") \
             .format(commit_format, f)
     output = subprocess.getoutput(git_commits)
     lines = output.split('\n')
 
     # Partition commits
     pattern = re.compile("^[0-9]\t[0-9]\t[A-Z]+.[A-Z]+$", re.IGNORECASE)
+    # TODO: Do that list comprehension pairing thing again!
     for l in lines:
-        if pattern.match(l): 
-            print(">\t", l, "matches!")
+        print(l)
+        if pattern.match(l): delta_stats = parse_git_numstat_line(l)
+        else: delta_entity = parse_git_user_line(l)
 
     exit(0)
 
@@ -99,5 +127,3 @@ def parse_git_commit_log(f):
 
     #contributors = output.split("\n")
     file_contributor_dict[f] = contributors
-
-    print(".", end = "", flush = True)

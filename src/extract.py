@@ -2,11 +2,14 @@
 
 import re
 import os
+import time
 import queue
+import pickle
 import subprocess
 from datetime import datetime
 
 # Personal classes
+from util import *
 from entity import *
 from experience import *
 
@@ -33,17 +36,46 @@ def extract(repo_name):
 def parse_git_logs(file_names):
     epool = EntityPool()
     fpool = FilePool()
-    for file_name in file_names: parse_git_commit_log(file_name, epool, fpool)
+    i = 1
+    l = len(file_names)
+    start_time = time.clock()
+    print()
+
+    for file_name in file_names[:10]:
+
+        # Parse stuff
+        parse_git_commit_log(file_name, epool, fpool)
+
+        # Prediction stuff
+        elapsed = time.clock() - start_time     # s
+        avg_time_per_file = elapsed / i         # s
+        remaining = l - i
+        time_left = remaining * avg_time_per_file
+
+        # Display stuff
+        restart_line()
+        time_left_str = "{} {}".format(round((time_left / 60), 2), "minutes left")
+        sys.stdout.write("[{}/{}] {} {}".format(i, l, time_left_str, file_name))
+        sys.stdout.flush()
+
+        i += 1
 
     # Print iteration info
-    for eid, e in epool.pool.items():
-        print("\t", len(e.ea_list), "\t", eid)
+    for eid, e in epool.pool.items(): print("\t", len(e.ea_list), "\t", eid)
     print()
     print("-" * 30)
-    print(len(epool.pool), "developers (so far)")
-    print(len(fpool.pool), "files (so far)")
+    print(len(epool.pool), "developers")
+    print(len(fpool.pool), "files")
     print("-" * 30)
     print()
+
+    # Attempt to serialize with pickle
+    efile = open("pickle/{}".format(str(epool)), "wb")
+    pickle.dump(epool, efile)
+    ffile = open("pickle/{}".format(str(fpool)), "wb")
+    pickle.dump(fpool, ffile)
+    efile.close()
+    ffile.close()
 
 def walk_dir(dir_name):
     """
@@ -143,8 +175,6 @@ def parse_git_commit_log(f, epool, fpool):
     # NOTE: Potential loss of information by ignoring merges! Only taking not
     # of changes to master branch
 
-    print("Parsing", f)
-
     # Get developer name, email, datetime, number of inserted lines,
     # and the number of deleted lines
     pretty_format = "\"%an\t%ae\t%ad\t\""
@@ -164,7 +194,7 @@ def parse_git_commit_log(f, epool, fpool):
         delta = create_delta(data)
 
         # Gather list of entities relevant to delta:
-        #   developers, organizations, etc.
+        # developers, organizations, etc.
         entities = get_entities(data, epool)
         for e in entities:
 

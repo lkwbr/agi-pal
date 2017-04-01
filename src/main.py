@@ -7,9 +7,7 @@
 """
 Prior design
 Using Passive-Aggressive classifier to learn abstract skills
-"""
 
-"""
 Proof of Concept design:
     0. Grab GitHub repository (e.g. Bitcoin Core)
     1. Parse all files in repo into standard data structure
@@ -28,7 +26,7 @@ def main():
 
     # Extract data from local repo
     print("Extracting data from", repo_name)
-    X, Y = ex.extract(repo_name)
+    ex.extract(repo_name)
     print("Data extracted!")
 
     # Train model on that parsed data!

@@ -18,38 +18,38 @@ def extract(repo_name):
     # subcomponent, etc.
 
     # TODO: Remove the hard-coding
+    # Change to code base directory (for git functionality)
     data_dir = "../../Repos"
     repo_dir = data_dir + "/" + repo_name
     os.chdir(repo_dir)
 
     # Gather all directory (and subdirectory) files, and then parse them
     # for features
+    print("Scanning code base...")
     file_names = walk_dir(".")
-    print("Walked dirs")
-    X, Y = parse_features(file_names)
+    print("Collected {} source code files in {}".format(len(file_names), repo_dir))
+    parse_git_logs(file_names)
 
-    return X, Y
+def parse_git_logs(file_names):
+    epool = EntityPool()
+    fpool = FilePool()
+    for file_name in file_names: parse_git_commit_log(file_name, epool, fpool)
 
-def parse_features(file_names):
-    """ """
-
-    X = []
-    Y = []
-
-    pool = EntityPool()
-    for file_name in file_names: parse_git_commit_log(file_name, pool)
-
-    exit(0)
-
-    return X, Y
+    # Print iteration info
+    for eid, e in epool.pool.items():
+        print("\t", len(e.ea_list), "\t", eid)
+    print()
+    print("-" * 30)
+    print(len(epool.pool), "developers (so far)")
+    print(len(fpool.pool), "files (so far)")
+    print("-" * 30)
+    print()
 
 def walk_dir(dir_name):
     """
     Iteratively explore and extract data w/in directory structure.
     NOTE: Pervious recursive approach killed stack.
     """
-
-    print(dir_name)
 
     dir_queue = queue.Queue()
     file_bag = []
@@ -70,7 +70,7 @@ def walk_dir(dir_name):
             # to name as well
             file_bag.extend([dir_concat(dir_path, x) for x in file_names])
 
-        print("Scanned directory '" + curr_dir + "'.")
+        #print("Scanned directory '" + curr_dir + "'.")
 
     return file_bag
 
@@ -128,20 +128,22 @@ def create_delta(data):
 
 def get_entities(data, pool):
 
-    # TODO: Add more entities
+    # TODO: Add organizational entities
 
     # Parse entities associated with this single delta
     name = data["name"]
     email = data["email"]
-    entity = pool.get(name, email)
+    entity = pool.get(email, name)
 
     return [entity]
 
-def parse_git_commit_log(f, pool):
+def parse_git_commit_log(f, epool, fpool):
     """ Parse given file's git commit log """
 
     # NOTE: Potential loss of information by ignoring merges! Only taking not
     # of changes to master branch
+
+    print("Parsing", f)
 
     # Get developer name, email, datetime, number of inserted lines,
     # and the number of deleted lines
@@ -163,19 +165,12 @@ def parse_git_commit_log(f, pool):
 
         # Gather list of entities relevant to delta:
         #   developers, organizations, etc.
-        entities = get_entities(data, pool)
+        entities = get_entities(data, epool)
         for e in entities:
 
             # Birth of new EA for this entity
             ea = ExperienceAtom(e, delta)
             e.add(ea)
 
-            # Update entity pool
-            pool.update(e)
-
-    for eid, e in pool.pool.items():
-        print("\t", len(e.ea_list), "\t", eid)
-    print(len(pool.pool), "developers (so far)")
-    print()
-
-    # TODO: Return something
+            # Add entity (contributor) to file in file pool (if not already there)
+            fpool.get(f).add(e)

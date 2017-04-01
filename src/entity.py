@@ -2,24 +2,40 @@
 
 from experience import *
 
-class EntityPool:
+class Pool:
+    def __init__(self):
+        self.pool = {}
+
+    def get(self, pid, *args): raise NotImplementedError
+
+class FilePool(Pool):
+    """ Map each file to a set of contributors """
+
+    def __init__(self):
+        Pool.__init__(self)
+
+    def get(self, pid, *args):
+        """ Get or create given file's set of contributors """
+        filename = pid
+        self.pool[filename] = self.pool.get(filename, set())
+        return self.pool[filename]
+
+class EntityPool(Pool):
     """
     Collection of each unique (contributing) entity within organization's
     code base; Entity id's are used to hash each Entity within our pool
     """
 
     def __init__(self):
-        self.pool = {}
+        Pool.__init__(self)
 
-    def update(self, entity):
-        """ Given an entity, update our pool """
-
-        # Get entity, setting it if non-existent
-        self.pool[entity.id] = self.pool.get(entity.id, entity)
-
-    def get(self, name, email):
+    def get(self, pid, *args):
         """ Get (or, if non-existent, create) an entity with the given email """
-        self.pool[email] = self.pool.get(email, Entity(name, email))
+
+        email = pid
+        name = args[0]
+
+        self.pool[email] = self.pool.get(email, Developer(name, email))
         return self.pool[email]
 
 class Entity:

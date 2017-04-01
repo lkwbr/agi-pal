@@ -4,6 +4,12 @@
 #   "Expertise Browser: A Quantitative Approach to Identifying Expertise"
 #   by Audris Mockus et al.
 
+class Tech:
+    pass
+
+class Module:
+    pass
+
 class Delta:
     """
     Represents elementary change to source file; can have a single delta per

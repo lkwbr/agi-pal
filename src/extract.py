@@ -4,6 +4,11 @@ import re
 import os
 import queue
 import subprocess
+from datetime import datetime
+
+# Personal classes
+from entity import *
+from experience import *
 
 def extract(repo_name):
     """ Extract sets X and Y from git repository under the folder '/data' """
@@ -17,11 +22,10 @@ def extract(repo_name):
     repo_dir = data_dir + "/" + repo_name
     os.chdir(repo_dir)
 
-    # Gather all directory (and subdirectory) files,
-    # and then parse them for features
+    # Gather all directory (and subdirectory) files, and then parse them
+    # for features
     file_names = walk_dir(".")
-    print("Donesldfkjsdlkfjsdklfj")
-    for f in file_names: print(f)
+    print("Walked dirs")
     X, Y = parse_features(file_names)
 
     return X, Y
@@ -32,13 +36,11 @@ def parse_features(file_names):
     X = []
     Y = []
 
-    # For each file (key), store the list of its contributors (value)
-    file_contributor_dict = {}
+    pool = EntityPool()
+    for file_name in file_names: parse_git_commit_log(file_name, pool)
 
-    for file_name in file_names:
-        parse_git_commit_log(file_name)
-        
-    print(file_contributor_dict)
+    exit(0)
+
     return X, Y
 
 def walk_dir(dir_name):
@@ -75,55 +77,105 @@ def walk_dir(dir_name):
 def dir_concat(dir_pre, dir_post):
     return dir_pre + "/" + dir_post
 
-def parse_git_user_line(l):
-    """ 
-    Parse given git commit line by single user. e.g., a line could be 
-    "Wladimir J. van der Laan    laanwj@gmail.com    Mon Nov 2 04:15:58 2015 +0100",
-    which is of the form [name]\t[email]\t[commit datetime]
+def parse_and_package(f, l):
     """
-    
-    fields = l.split("\t")
-    name = fields[0] 
-    email = fields[1] 
-    datetime = fields[2] 
-
-    #entity = Entity
-    entity
-
-    # TODO: Convert datetime into Pythonic form
-
-def parse_git_numstat_line(l):
-    """ 
-    Parse given git numstat line, of following form:
-    [num inserted lines]\t[num deleted lines]\t[relative filename] 
+    Parse given git delta line by single user, i.e., a line of the form
+        "[name]\t[email]\t[commit datetime]\t[num inserted lines] \
+        \t[num deleted lines]\t[relative filename]"
+    Parse and package up all information given!
     """
 
+    # Tokenize for fields
     fields = l.split("\t")
 
-def parse_git_commit_log(f):
+    # Entity-related
+    name = fields[0]
+    email = fields[1]
+
+    # Delta-related
+    abs_file = f
+    # Time format example: "Tue Oct 28 21:33:23 2014 -0400"
+    date_time = datetime.strptime(fields[2], "%a %b %d %H:%M:%S %Y %z")
+    try:
+        num_insert = int(fields[3])
+        num_delete = int(fields[4])
+    except:
+        # "git log --numstat ..." will sometimes give hyphens instead of 0s
+        num_insert = 0
+        num_delete = 0
+
+    # Package-up
+    commit_data = {
+        "name": name,
+        "email": email,
+        "abs_file": abs_file,
+        "date_time": date_time,
+        "num_insert": num_insert,
+        "num_delete": num_delete }
+
+    return commit_data
+
+def create_delta(data):
+    """ Simple. From data, create Delta object """
+
+    delta = Delta(
+        data["abs_file"],
+        data["num_insert"],
+        data["num_delete"],
+        data["date_time"])
+
+    return delta
+
+def get_entities(data, pool):
+
+    # TODO: Add more entities
+
+    # Parse entities associated with this single delta
+    name = data["name"]
+    email = data["email"]
+    entity = pool.get(name, email)
+
+    return [entity]
+
+def parse_git_commit_log(f, pool):
     """ Parse given file's git commit log """
 
-    # Get developer name, email, datetime, number of inserted lines, 
-    # and the number of deleted lines
     # NOTE: Potential loss of information by ignoring merges! Only taking not
     # of changes to master branch
-    commit_format = "%an'\t'%ae'\t'%ad'\t'"
-    git_commits = ("git log --format={} --no-merges --numstat {} | sed '/^$/d'") \
-            .format(commit_format, f)
+
+    # Get developer name, email, datetime, number of inserted lines,
+    # and the number of deleted lines
+    pretty_format = "\"%an\t%ae\t%ad\t\""
+    git_commits = ("git log --format={} --no-merges --numstat {} | sed \"/^$/d\"") \
+        .format(pretty_format, f)
     output = subprocess.getoutput(git_commits)
     lines = output.split('\n')
 
-    # Partition commits
-    pattern = re.compile("^[0-9]\t[0-9]\t[A-Z]+.[A-Z]+$", re.IGNORECASE)
-    # TODO: Do that list comprehension pairing thing again!
-    for l in lines:
-        print(l)
-        if pattern.match(l): delta_stats = parse_git_numstat_line(l)
-        else: delta_entity = parse_git_user_line(l)
+    # Pair each commit author with commit stats
+    pairs = [x + y for x, y in zip(lines[::2], lines[1::2])]
+    for p in pairs:
 
-    exit(0)
+        # Parse commit info
+        data = parse_and_package(f, p)
 
-    #delta = Delta(f, )
+        # Create delta from data
+        delta = create_delta(data)
 
-    #contributors = output.split("\n")
-    file_contributor_dict[f] = contributors
+        # Gather list of entities relevant to delta:
+        #   developers, organizations, etc.
+        entities = get_entities(data, pool)
+        for e in entities:
+
+            # Birth of new EA for this entity
+            ea = ExperienceAtom(e, delta)
+            e.add(ea)
+
+            # Update entity pool
+            pool.update(e)
+
+    for eid, e in pool.pool.items():
+        print("\t", len(e.ea_list), "\t", eid)
+    print(len(pool.pool), "developers (so far)")
+    print()
+
+    # TODO: Return something

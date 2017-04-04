@@ -13,27 +13,75 @@ from util import *
 from entity import *
 from experience import *
 
+# Directories of interest
+repo_dir = None
+project_dir = None
+
+def load(arg):
+    """ Load given class name, raising exception if not previously pickled """
+
+    # Check if file exists to begin with
+    fname = "pickle/" + arg + ".pickle"
+    if not os.path.exists(fname): raise ValueError
+
+    # Load pickled file as data!
+    pickle_file = open(fname, "rb")
+    data = pickle.load(pickle_file)
+    pickle_file.close()
+    return data
+
+def save(*args):
+    """ Picklize all given classes """
+
+    # Attempt to serialize our classes (and thus, our data) with pickle
+    # NOTE: Must open the files in binary mode ("b")
+    pickle_dir = project_dir + "/pickle/"
+    for a in args:
+        with open("{}{}.pickle".format(pickle_dir, a.__name__), "wb+") as efile:
+            pickle.dump(epool, efile)
+
 def extract(repo_name):
     """ Extract sets X and Y from git repository under the folder '/data' """
 
     # NOTE: For each source file delta, all relevant developers and
     # organizations gain an EA for a particular file, technology, module,
     # subcomponent, etc.
+    # NOTE: Expecting all (git) repos to be in a folder at "../../Repos/"
 
-    # TODO: Remove the hard-coding
-    # Change to code base directory (for git functionality)
-    data_dir = "../../Repos"
-    repo_dir = data_dir + "/" + repo_name
-    os.chdir(repo_dir)
+    global repo_dir, project_dir
 
-    # Gather all directory (and subdirectory) files, and then parse them
-    # for features
-    print("Scanning code base...")
-    file_names = walk_dir(".")
-    print("Collected {} source code files in {}".format(len(file_names), repo_dir))
-    parse_git_logs(file_names)
+    # We have choice to do new extraction, or to load a previous one
+    live_extract = False
+    if not live_extract:
+
+        # Load collection of entities and files
+        epool = load("EntityPool")
+        fpool = load("FilePool")
+
+        for em, ent in epool.pool.items():
+            print(em, len(ent.ea_list))
+
+        for f in fpool.pool:
+            print(f)
+
+    else:
+
+        # TODO: Remove the hard-coding
+        # Change to code base directory (for git functionality), while also
+        # storing the source directory
+        repo_dir = "../../Repos/" + repo_name
+        project_dir = os.getcwd()
+        os.chdir(repo_dir)
+
+        # Gather all directory (and subdirectory) files, and then parse them
+        # for features
+        print("Scanning code base...")
+        file_names = walk_dir(".")
+        print("Collected {} source code files in {}".format(len(file_names), repo_dir))
+        parse_git_logs(file_names)
 
 def parse_git_logs(file_names):
+
     epool = EntityPool()
     fpool = FilePool()
     i = 1
@@ -69,15 +117,8 @@ def parse_git_logs(file_names):
     print("-" * 30)
     print()
 
-    # Attempt to serialize with pickle
-    # TODO: Switch back to AgiPal dir
-    some_file = open("retard.faggot", "w+")
-    efile = open("pickle/{}.pickle".format(epool.__name__), "w+")
-    pickle.dump(epool, efile)
-    ffile = open("pickle/{}.pickle".format(fpool.__name__), "w+")
-    pickle.dump(fpool, ffile)
-    efile.close()
-    ffile.close()
+    # Save these classes
+    save(epool, fpool)
 
 def walk_dir(dir_name):
     """
@@ -103,8 +144,6 @@ def walk_dir(dir_name):
             # Put those filenames in the bag! Adding directory structure
             # to name as well
             file_bag.extend([dir_concat(dir_path, x) for x in file_names])
-
-        #print("Scanned directory '" + curr_dir + "'.")
 
     return file_bag
 

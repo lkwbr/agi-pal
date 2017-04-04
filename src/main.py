@@ -29,11 +29,7 @@ def main():
     ex.extract(repo_name)
     print("Data extracted!")
 
-    # Train model on that parsed data!
-    m = mod.RecommenderModel(X, Y)
-
-    return
-    # -------------------------------------------------------------------------
+def todo_something():
 
     # Model and params
     pac = PassiveAggressiveClassifier()

@@ -70,9 +70,11 @@ def parse_git_logs(file_names):
     print()
 
     # Attempt to serialize with pickle
-    efile = open("pickle/{}".format(str(epool)), "wb")
+    # TODO: Switch back to AgiPal dir
+    some_file = open("retard.faggot", "w+")
+    efile = open("pickle/{}.pickle".format(epool.__name__), "w+")
     pickle.dump(epool, efile)
-    ffile = open("pickle/{}".format(str(fpool)), "wb")
+    ffile = open("pickle/{}.pickle".format(fpool.__name__), "w+")
     pickle.dump(fpool, ffile)
     efile.close()
     ffile.close()

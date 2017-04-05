@@ -14,6 +14,7 @@ from entity import *
 from experience import *
 
 # Directories of interest
+base_repo_dir = "../../Repos/"
 repo_dir = None
 project_dir = None
 
@@ -40,8 +41,8 @@ def save(*args):
         with open("{}{}.pickle".format(pickle_dir, a.__name__), "wb+") as f:
             pickle.dump(a, f)
 
-def extract(repo_name):
-    """ Extract sets X and Y from git repository under the folder '/data' """
+def extract(repo_name, live = True):
+    """ Extract repository data into custom objects """
 
     # NOTE: For each source file delta, all relevant developers and
     # organizations gain an EA for a particular file, technology, module,
@@ -51,44 +52,46 @@ def extract(repo_name):
     global repo_dir, project_dir
 
     # We have choice to do new extraction, or to load a previous one
-    live_extract = True
-    if not live_extract:
+    if not live:
 
         # Load collection of entities and files
         epool = load("EntityPool")
         fpool = load("FilePool")
 
-        for em, ent in epool.pool.items():
-            print(em, len(ent.ea_list))
-
-        for f in fpool.pool:
-            print(f)
-
     else:
 
-        # TODO: Remove the hard-coding
         # Change to code base directory (for git functionality), while also
         # storing the source directory
-        repo_dir = "../../Repos/" + repo_name
+        repo_dir = base_repo_dir + repo_name
         project_dir = os.getcwd()
         os.chdir(repo_dir)
 
         # Gather all directory (and subdirectory) files, and then parse them
-        # for features
+        # into the proper classes
         print("Scanning code base...")
         file_names = walk_dir(".")
-        print("Collected {} source code files in {}".format(len(file_names), repo_dir))
-        parse_git_logs(file_names)
+        print("Collected {} source code files in {}".format( \
+            len(file_names), repo_dir))
+        epool, fpool = parse_git_logs(file_names)
+
+        # Come back to the project, my love!
+        os.chdir(project_dir)
+
+    return epool, fpool
 
 def parse_git_logs(file_names):
+    """ Parse git change/commit logs from argument list of file names """
 
+    # Initialize our object pools
     epool = EntityPool()
     fpool = FilePool()
+
+    # Vars for remaining time estimation
     i = 1
     l = len(file_names)
     start_time = time.clock()
-    print()
 
+    print()
     for file_name in file_names[:]:
 
         # Parse stuff
@@ -99,10 +102,11 @@ def parse_git_logs(file_names):
         avg_time_per_file = elapsed / i         # s
         remaining = l - i
         time_left = remaining * avg_time_per_file
+        time_left_min = round((time_left / 60), 2)
 
         # Display stuff
         restart_line()
-        time_left_str = "{} {}".format(round((time_left / 60), 2), "minutes left")
+        time_left_str = "{} {}".format(time_left_min, "minutes left")
         sys.stdout.write("[{}/{}] {} {}".format(i, l, time_left_str, file_name))
         sys.stdout.flush()
 
@@ -117,12 +121,13 @@ def parse_git_logs(file_names):
     print("-" * 30)
     print()
 
-    # Save these classes
+    # Save these classes and return them
     save(epool, fpool)
+    return epool, fpool
 
 def walk_dir(dir_name):
     """
-    Iteratively explore and extract data w/in directory structure.
+    Iteratively explore and extract data w/in whole directory structure.
     NOTE: Pervious recursive approach killed stack.
     """
 

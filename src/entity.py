@@ -42,6 +42,20 @@ class EntityPool(Pool):
         self.pool[email] = self.pool.get(email, Developer(name, email))
         return self.pool[email]
 
+class File:
+    """
+    Simple file class, attributing to each file a set of distinct developers
+    """
+
+    def __init__(self, abs_path):
+        self.abs_path = abs_path
+        self.contributors = {}
+
+    def add(self, c):
+        """ Add a contributor to the file """
+
+        pass
+
 class Entity:
     """ Represents an experience gathering entity """
 

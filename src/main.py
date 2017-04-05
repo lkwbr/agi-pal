@@ -2,9 +2,15 @@
 
 # Author: Luke Weber
 # Creation date: 12/19/2016
-# Last modification date: 03/29/2017
+# Last modification date: 04/04/2017
 
 """
+
+[ Project AgiPal ]
+    | Learn the skills of developers in attempt to efficiently them assign
+    | Sprint tasks, as they are produced by organizations using an Agile
+    | development ideology (specifically, SCRUM)
+
 Prior design
 Using Passive-Aggressive classifier to learn abstract skills
 
@@ -16,6 +22,8 @@ Proof of Concept design:
     4. Print results
 """
 
+# TODO: Undergo design change
+
 import extract as ex  	# Local git repo data extracter
 import fetch as fc    	# Web-based git repo extracter
 import model as mod    	# Recommender model
@@ -26,10 +34,15 @@ def main():
 
     # Extract data from local repo
     print("Extracting data from", repo_name)
-    ex.extract(repo_name)
+    epool, fpool = ex.extract(repo_name, live = True)
     print("Data extracted!")
 
+    # Generate
+    for f in fpool.pool:
+        print(fpool.get())
+
 def todo_something():
+    """ The leftover code from previous assignment """
 
     # Model and params
     pac = PassiveAggressiveClassifier()

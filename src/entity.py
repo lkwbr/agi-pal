@@ -53,7 +53,7 @@ class Entity:
         self.id = email # NOTE: Assuming emails are unique
 
         # Personal collection of experience atoms
-        # NOTE: List is fine, so long as we do not need lookups
+        # (List is fine, so long as we do not need lookups)
         self.ea_list = []
 
     def add(self, ea):

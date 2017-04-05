@@ -37,8 +37,8 @@ def save(*args):
     # NOTE: Must open the files in binary mode ("b")
     pickle_dir = project_dir + "/pickle/"
     for a in args:
-        with open("{}{}.pickle".format(pickle_dir, a.__name__), "wb+") as efile:
-            pickle.dump(epool, efile)
+        with open("{}{}.pickle".format(pickle_dir, a.__name__), "wb+") as f:
+            pickle.dump(a, f)
 
 def extract(repo_name):
     """ Extract sets X and Y from git repository under the folder '/data' """
@@ -51,7 +51,7 @@ def extract(repo_name):
     global repo_dir, project_dir
 
     # We have choice to do new extraction, or to load a previous one
-    live_extract = False
+    live_extract = True
     if not live_extract:
 
         # Load collection of entities and files
@@ -89,7 +89,7 @@ def parse_git_logs(file_names):
     start_time = time.clock()
     print()
 
-    for file_name in file_names[:10]:
+    for file_name in file_names[:]:
 
         # Parse stuff
         parse_git_commit_log(file_name, epool, fpool)

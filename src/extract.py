@@ -14,7 +14,7 @@ from entity import *
 from experience import *
 
 # Directories of interest
-base_repo_dir = "../../Repos/"
+base_repo_dir = "../../../Repos/"
 repo_dir = None
 project_dir = None
 
@@ -50,6 +50,7 @@ def extract(repo_name, live = True):
     # NOTE: Expecting all (git) repos to be in a folder at "../../Repos/"
 
     global repo_dir, project_dir
+    epool, fpool = (None, None)
 
     # We have choice to do new extraction, or to load a previous one
     if not live:
@@ -205,6 +206,7 @@ def create_delta(data):
     return delta
 
 def get_entities(data, pool):
+    """ Get entities from single delta """
 
     # TODO: Add organizational entities
 
@@ -229,6 +231,9 @@ def parse_git_commit_log(f, epool, fpool):
     output = subprocess.getoutput(git_commits)
     lines = output.split('\n')
 
+    # Instantiate file object from file path
+    ffile = File(f)
+
     # Pair each commit author with commit stats
     pairs = [x + y for x, y in zip(lines[::2], lines[1::2])]
     for p in pairs:
@@ -242,11 +247,16 @@ def parse_git_commit_log(f, epool, fpool):
         # Gather list of entities relevant to delta:
         # developers, organizations, etc.
         entities = get_entities(data, epool)
-        for e in entities:
+        for entity in entities:
 
             # Birth of new EA for this entity
-            ea = ExperienceAtom(e, delta)
-            e.add(ea)
+            entity = Entity(name, email)
+            ea = ExperienceAtom(e, ffile, delta)
 
-            # Add entity (contributor) to file in file pool (if not already there)
-            fpool.get(f).add(e)
+            # Double-sided link, where EA is middle of link
+            ffile.link(ea)
+            entity.link(ea)
+
+            # Add entity (contributor) to file in file pool
+            fpool.add(ffile)
+            epool.add(entity)

@@ -34,6 +34,7 @@ class ExperienceAtom:
     certain delta, therefore, each EA is owned by a single entity
     """
 
-    def __init__(self, entity, delta):
+    def __init__(self, entity, ffile, delta):
         self.entity = entity
+        self.ffile = ffile
         self.delta = delta

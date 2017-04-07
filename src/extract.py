@@ -114,7 +114,8 @@ def parse_git_logs(file_names):
         i += 1
 
     # Print iteration info
-    for eid, e in epool.pool.items(): print("\t", len(e.ea_list), "\t", eid)
+    print()
+    for eid, e in epool.pool.items(): print("\t", len(e.eas), "\t", eid)
     print()
     print("-" * 30)
     print(len(epool.pool), "developers")
@@ -205,15 +206,21 @@ def create_delta(data):
 
     return delta
 
-def get_entities(data, pool):
-    """ Get entities from single delta """
+def get_entities(data, epool):
+    """ Get Entity objects from single delta, making sure they're in the pool """
 
     # TODO: Add organizational entities
 
     # Parse entities associated with this single delta
     name = data["name"]
     email = data["email"]
-    entity = pool.get(email, name)
+
+    # Get/create entity
+    entity = epool.get(email)
+    if entity is None:
+        # Add new entity to the entity pool
+        entity = Entity(name, email)
+        epool.add(entity)
 
     return [entity]
 
@@ -231,8 +238,9 @@ def parse_git_commit_log(f, epool, fpool):
     output = subprocess.getoutput(git_commits)
     lines = output.split('\n')
 
-    # Instantiate file object from file path
+    # Instantiate file object from file path and add to file pool
     ffile = File(f)
+    fpool.add(ffile)
 
     # Pair each commit author with commit stats
     pairs = [x + y for x, y in zip(lines[::2], lines[1::2])]
@@ -247,16 +255,14 @@ def parse_git_commit_log(f, epool, fpool):
         # Gather list of entities relevant to delta:
         # developers, organizations, etc.
         entities = get_entities(data, epool)
+
+        # Link each entity from delta to a unique EA, which is then linked
+        # to the (argument) file
         for entity in entities:
 
             # Birth of new EA for this entity
-            entity = Entity(name, email)
-            ea = ExperienceAtom(e, ffile, delta)
+            ea = ExperienceAtom(entity, ffile, delta)
 
             # Double-sided link, where EA is middle of link
             ffile.link(ea)
             entity.link(ea)
-
-            # Add entity (contributor) to file in file pool
-            fpool.add(ffile)
-            epool.add(entity)

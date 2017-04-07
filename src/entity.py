@@ -10,9 +10,7 @@ class Pool:
 
 class FilePool(Pool):
     """ Map each file to a set of contributors """
-
     __name__ = "FilePool"
-
     def __init__(self):
         Pool.__init__(self)
 
@@ -21,9 +19,7 @@ class EntityPool(Pool):
     Collection of each unique (contributing) entity within organization's
     code base; Entity id's are used to hash each Entity within our pool
     """
-
     __name__ = "EntityPool"
-
     def __init__(self):
         Pool.__init__(self)
 

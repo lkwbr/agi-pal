@@ -22,8 +22,6 @@ Proof of Concept design:
     4. Print results
 """
 
-# TODO: Undergo design change
-
 import extract as ex  	# Local git repo data extracter
 import fetch as fc    	# Web-based git repo extracter
 import model as mod    	# Recommender model
@@ -37,9 +35,9 @@ def main():
     epool, fpool = ex.extract(repo_name, live = True)
     print("Data extracted!")
 
-    # Generate
-    for f in fpool.pool:
-        print(fpool.get())
+    # See entities attributed to each file
+    for fname, fobj in fpool.pool.items():
+        print(fname, ", ".join([ea.entity.id for ea in fobj.eas][:5]))
 
 def todo_something():
     """ The leftover code from previous assignment """

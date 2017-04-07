@@ -17,6 +17,8 @@ class Delta:
     """
 
     def __init__(self, file_name, num_insert, num_delete, date_time):
+        """ """
+
         self.file_name = file_name
         self.num_insert = num_insert
         self.num_delete = num_delete
@@ -35,6 +37,10 @@ class ExperienceAtom:
     """
 
     def __init__(self, entity, ffile, delta):
+
+        # Two links EA is tieing together
         self.entity = entity
         self.ffile = ffile
+
+        # File delta from which this EA was conceived
         self.delta = delta

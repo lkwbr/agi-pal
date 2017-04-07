@@ -22,6 +22,11 @@ Proof of Concept design:
     4. Print results
 """
 
+# TODO: Fix problem with not saving our pools because of the recursive nature
+# TODO: Perhaps implement shelves to persistently store data?
+
+import sys
+
 import extract as ex  	# Local git repo data extracter
 import fetch as fc    	# Web-based git repo extracter
 import model as mod    	# Recommender model
@@ -32,12 +37,19 @@ def main():
 
     # Extract data from local repo
     print("Extracting data from", repo_name)
+
+    old_limit = sys.getrecursionlimit()
+    new_limit = 3000
+    sys.setrecursionlimit(new_limit)
     epool, fpool = ex.extract(repo_name, live = True)
+    sys.setrecursionlimit(old_limit)
     print("Data extracted!")
 
     # See entities attributed to each file
     for fname, fobj in fpool.pool.items():
-        print(fname, ", ".join([ea.entity.id for ea in fobj.eas][:5]))
+        print(fname)
+        for eaid in [ea.entity.id for ea in fobj.eas][:]:
+            print("\t", eaid)
 
 def todo_something():
     """ The leftover code from previous assignment """

@@ -99,6 +99,7 @@ def parse_git_logs(file_names):
         parse_git_commit_log(file_name, epool, fpool)
 
         # Prediction stuff
+        # NOTE: We don't take into account the sizes of files
         elapsed = time.clock() - start_time     # s
         avg_time_per_file = elapsed / i         # s
         remaining = l - i
@@ -114,6 +115,7 @@ def parse_git_logs(file_names):
         i += 1
 
     # Print iteration info
+    print()
     print()
     for eid, e in epool.pool.items(): print("\t", len(e.eas), "\t", eid)
     print()

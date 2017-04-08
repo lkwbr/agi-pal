@@ -22,9 +22,6 @@ Proof of Concept design:
     4. Print results
 """
 
-# TODO: Fix problem with not saving our pools because of the recursive nature
-# TODO: Perhaps implement shelves to persistently store data?
-
 import sys
 
 import extract as ex  	# Local git repo data extracter
@@ -38,18 +35,31 @@ def main():
     # Extract data from local repo
     print("Extracting data from", repo_name)
 
+    # Mine VCS, up the recursion limit for pickling the pools
     old_limit = sys.getrecursionlimit()
-    new_limit = 3000
+    new_limit = 6000
     sys.setrecursionlimit(new_limit)
-    epool, fpool = ex.extract(repo_name, live = True)
+    epool, fpool = ex.extract(repo_name, live = False)
     sys.setrecursionlimit(old_limit)
-    print("Data extracted!")
+    print("VCS Successfully mined!")
 
     # See entities attributed to each file
     for fname, fobj in fpool.pool.items():
+
         print(fname)
-        for eaid in [ea.entity.id for ea in fobj.eas][:]:
-            print("\t", eaid)
+        ent_dict = {}
+
+        # Count-up frequency of contributions to this file by each entity
+        for ea_id in [ea.entity.id for ea in fobj.eas][:]:
+            ent_dict[ea_id] = ent_dict.get(ea_id, 0) + 1
+
+        # Sort by frequency
+        ent_list = sorted(list(ent_dict.items()), key = lambda x: -x[1])
+
+        # Display said info, getting only top 5 entities
+        for ent, freq in ent_list[:5]:
+            print("\t", "({})".format(freq), ent)
+
 
 def todo_something():
     """ The leftover code from previous assignment """

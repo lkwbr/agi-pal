@@ -22,6 +22,7 @@ Proof of Concept design:
     4. Print results
 """
 
+# TODO: Renaming extact.py to mine.py (and refactor all internal methods)
 # TODO: Fix problem with not saving our pools because of the recursive nature
 # TODO: Perhaps implement shelves to persistently store data?
 

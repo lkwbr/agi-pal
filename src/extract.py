@@ -14,7 +14,7 @@ from entity import *
 from experience import *
 
 # Directories of interest
-base_repo_dir = "../../../Repos/"
+base_repo_dir = "../../Repos/"
 repo_dir = None
 project_dir = None
 

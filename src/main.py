@@ -2,7 +2,7 @@
 
 # Author: Luke Weber
 # Creation date: 12/19/2016
-# Last modification date: 04/04/2017
+# Last modification date: 04/28/2017
 
 """
 
@@ -11,8 +11,7 @@
     | Sprint tasks, as they are produced by organizations using an Agile
     | development ideology (specifically, SCRUM)
 
-Prior design
-Using Passive-Aggressive classifier to learn abstract skills
+Prior design: Using Passive-Aggressive classifier to learn abstract skills
 
 Proof of Concept design:
     0. Grab GitHub repository (e.g. Bitcoin Core)
@@ -28,7 +27,7 @@ Proof of Concept design:
 
 import sys
 
-import extract as ex  	# Local git repo data extracter
+import mine          	# Local git repo data extracter
 import fetch as fc    	# Web-based git repo extracter
 import model as mod    	# Recommender model
 
@@ -36,15 +35,12 @@ def main():
 
     repo_name = "bitcoin"
 
-    # Extract data from local repo
-    print("Extracting data from", repo_name)
+    # Setup our environment
+    setup()
 
-    old_limit = sys.getrecursionlimit()
-    new_limit = 3000
-    sys.setrecursionlimit(new_limit)
-    epool, fpool = ex.extract(repo_name, live = True)
-    sys.setrecursionlimit(old_limit)
-    print("Data extracted!")
+    # Mine data from given repository
+    rminer = mine.RepoMiner(repo_name)
+    epool, fpool = rminer.mine(live = True, keep = True)
 
     # See entities attributed to each file
     for fname, fobj in fpool.pool.items():
@@ -52,6 +48,21 @@ def main():
         for eaid in [ea.entity.id for ea in fobj.eas][:]:
             print("\t", eaid)
 
+    # Be responsible; cleanup the environment
+    cleanup()
+
+def setup():
+
+    # Update recursive bound
+    old_limit = sys.getrecursionlimit()
+    new_limit = 3000
+    sys.setrecursionlimit(new_limit)
+
+def cleanup():
+    # Reset recursion limi
+    sys.setrecursionlimit(old_limit)
+
+# TODO: Handle this
 def todo_something():
     """ The leftover code from previous assignment """
 

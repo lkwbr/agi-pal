@@ -1,6 +1,6 @@
 # entity.py
 
-from experience import *
+from xp import *
 
 class Pool:
     __name__ = "Pool"
@@ -24,7 +24,7 @@ class EntityPool(Pool):
         Pool.__init__(self)
 
 class Node:
-    """ """
+    """ Abstract entity to connect to an EA """
 
     def __init__(self):
         # Personal collection of experience atoms

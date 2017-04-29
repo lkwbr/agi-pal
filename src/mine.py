@@ -127,22 +127,27 @@ class RepoMiner:
         fpool = FilePool()
 
         # Vars for remaining time estimation
-        i = 1
+        i = 0
+        t = 0
         l = len(file_names)
-        start_time = time.clock()
+        s = sum([y for x, y in file_names])
+        start_time = time.time()
 
         print()
-        for file_name in file_names[:]:
+        for file_name, file_len in file_names[:]:
+
+            i += 1
+            t += file_len
 
             # Parse stuff
             RepoMiner._parse_git_commit_log(file_name, epool, fpool)
 
             # Prediction stuff
-            # NOTE: We don't take into account the sizes of files
-            elapsed = time.clock() - start_time     # s
-            avg_time_per_file = elapsed / i         # s
-            remaining = l - i
-            time_left = remaining * avg_time_per_file
+            elapsed = time.time() - start_time      # s
+            avg_time_per_mb = elapsed / t           # s
+            remaining_mb = s - t
+
+            time_left = remaining_mb * avg_time_per_mb
             time_left_min = round((time_left / 60), 2)
 
             # Display stuff
@@ -150,8 +155,6 @@ class RepoMiner:
             time_left_str = "{} {}".format(time_left_min, "minutes left")
             sys.stdout.write("[{}/{}] {} {}".format(i, l, time_left_str, file_name))
             sys.stdout.flush()
-
-            i += 1
 
         # Print iteration info
         print()
@@ -164,8 +167,6 @@ class RepoMiner:
         print("-" * 30)
         print()
 
-        # Save these classes and return them
-        _save(epool, fpool)
         return epool, fpool
 
     @staticmethod
@@ -191,8 +192,12 @@ class RepoMiner:
                     dir_queue.put(RepoMiner._dir_concat(dir_path, sub_dir_name))
 
                 # Put those filenames in the bag! Adding directory structure
-                # to name as well
-                file_bag.extend([RepoMiner._dir_concat(dir_path, x) for x in file_names])
+                # and file size to name as well
+                curr_dir_files = [
+                    (RepoMiner._dir_concat(dir_path, x), \
+                    os.stat(RepoMiner._dir_concat(dir_path, x)).st_size) \
+                    for x in file_names]
+                file_bag.extend(curr_dir_files)
 
         return file_bag
 

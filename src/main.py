@@ -21,9 +21,8 @@ Proof of Concept design:
     4. Print results
 """
 
-# TODO: Renaming extact.py to mine.py (and refactor all internal methods)
-# TODO: Fix problem with not saving our pools because of the recursive nature
 # TODO: Perhaps implement shelves to persistently store data?
+# TODO: Apply deep learning somehow!
 
 import sys
 
@@ -39,8 +38,8 @@ def main():
     setup()
 
     # Mine data from given repository
-    rminer = mine.RepoMiner(repo_name)
-    epool, fpool = rminer.mine(live = True, keep = True)
+    miner = mine.RepoMiner(repo_name)
+    epool, fpool = miner.mine(live = True, keep = True)
 
     # See entities attributed to each file
     for fname, fobj in fpool.pool.items():
@@ -119,4 +118,4 @@ def todo_something():
     print("=" * 50)
 
 # Drive!
-main()
+if __name__ == "main": main()

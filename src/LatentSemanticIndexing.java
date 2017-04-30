@@ -1,13 +1,24 @@
 // LatentSemanticIndexing.java
 
-package agipal;
+// TODO: Get Lucene packages
+// TODO: Get sample code below running
+// TODO: Adapt code for sample task NL query among code base
 
-import org.apache.lucene.document;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+//import org.apache.lucene.queryparser.classic.*;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.apache.lucene.util.QueryBuilder;
+import org.apache.lucene.document.*;
+import org.apache.lucene.analysis.*;
+import org.apache.lucene.search.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.store.*;
 
 public class LatentSemanticIndexing {
 
-  public LatentSemanticIndexing() {}
+  // Main method: called from command line
   public static void main(String args[]) {
+
     Analyzer analyzer = new StandardAnalyzer();
 
     // Store the index in memory:
@@ -30,11 +41,11 @@ public class LatentSemanticIndexing {
     QueryParser parser = new QueryParser("fieldname", analyzer);
     Query query = parser.parse("text");
     ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
-    assertEquals(1, hits.length);
+ //   assertEquals(1, hits.length);
     // Iterate through the results:
     for (int i = 0; i < hits.length; i++) {
       Document hitDoc = isearcher.doc(hits[i].doc);
-      assertEquals("This is the text to be indexed.", hitDoc.get("fieldname"));
+  //    assertEquals("This is the text to be indexed.", hitDoc.get("fieldname"));
     }
 
     ireader.close();

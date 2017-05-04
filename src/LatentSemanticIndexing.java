@@ -5,9 +5,8 @@
 // TODO: Adapt code for sample task NL query among code base
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-//import org.apache.lucene.queryparser.classic.*;
-import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.util.QueryBuilder;
+import org.apache.lucene.queryparser.classic.*;
 import org.apache.lucene.document.*;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.search.*;
@@ -19,11 +18,12 @@ public class LatentSemanticIndexing {
   // Main method: called from command line
   public static void main(String args[]) {
 
-    Analyzer analyzer = new StandardAnalyzer();
+    System.out.println("\n[ Latent Semantic Indexing ]\n");
 
-    // Store the index in memory:
+    Analyzer analyzer = new StandardAnalyzer();
     Directory directory = new RAMDirectory();
 
+    /*
     // To store an index on disk, use this instead:
     //Directory directory = FSDirectory.open("/tmp/testindex");
     IndexWriterConfig config = new IndexWriterConfig(analyzer);
@@ -40,7 +40,7 @@ public class LatentSemanticIndexing {
     // Parse a simple query that searches for "text":
     QueryParser parser = new QueryParser("fieldname", analyzer);
     Query query = parser.parse("text");
-    ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
+    ScoreDoc[] hits = isearcher.search(query, 1000).scoreDocs;
  //   assertEquals(1, hits.length);
     // Iterate through the results:
     for (int i = 0; i < hits.length; i++) {
@@ -50,5 +50,6 @@ public class LatentSemanticIndexing {
 
     ireader.close();
     directory.close();
+    */
   }
 }

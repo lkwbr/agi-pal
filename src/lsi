@@ -1,0 +1,12 @@
+#!/bin/bash
+
+LSI_SRC=LatentSemanticIndexing
+
+# Compile Java source
+javac -cp lib/lucene-core-6.5.1.jar:lib/lucene-queryparser-6.5.1.jar ${LSI_SRC}.java
+
+# Run Java class file
+java $LSI_SRC
+
+# Remove excess
+rm ${LSI_SRC}.class

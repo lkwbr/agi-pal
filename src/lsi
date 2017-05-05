@@ -1,12 +1,15 @@
 #!/bin/bash
 
-LSI_SRC=LatentSemanticIndexing
+LSI_SRC=AgiPalLSI
 
 # Compile Java source
-javac -cp lib/lucene-core-6.5.1.jar:lib/lucene-queryparser-6.5.1.jar ${LSI_SRC}.java
+javac -verbose -cp "lib/*" ${LSI_SRC}.java
 
 # Run Java class file
-java $LSI_SRC
+# NOTE: Prior to including classpath, we can't find our (import) packages,
+# and when we include cp, we can't find or load main class AgiPalLSI
+# TODO: Fix this or move to Windows
+java -verbose -cp "lib/*" ${LSI_SRC}
 
 # Remove excess
 rm ${LSI_SRC}.class

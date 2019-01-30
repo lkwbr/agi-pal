@@ -1,4 +1,4 @@
-# [ AgiPal ] (In Progress)
+# AgiPal: Task Assignment System (In Progress)
 
 # TODO: Pivot the project and get something published.
 
